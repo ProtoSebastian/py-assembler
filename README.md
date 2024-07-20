@@ -1,3 +1,7 @@
+> [!IMPORTANT]
+> Changes are currently all temporary; everything is subject to change.
+> For now, please only use https://github.com/ProtoSebastian/newcpu
+
 # Intro
 A fork of [@MattBatWings](https://github.com/MattBatWings)'s assembler that I kept adding features to while keeping it a superset of the original.
 
