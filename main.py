@@ -59,14 +59,17 @@ Notes:
   Parameters for single character options can be separated and unseparated, so:
   "-Ooutput.bin" and "-O output.bin" are both valid."""
 
-# Credits/license message
-credits_mess = """Credits:
-  Author of the base code (none of which remains now) is @MattBatWings at
-   GitHub: https://github.com/MattBatWings
-   YouTube: https://youtube.com/@MattBatWings
+# Credits message
+credits_mess = """Author:
+  @ProtoSebastian
+-  GitHub: https://github.com/ProtoSebastian
 
-  Code author is @ProtoSebastian at
-   GitHub: https://github.com/ProtoSebastian"""
+Honorable mention:
+  @MattBatWings (for inspiring this project <3)
+-  GitHub: https://github.com/MattBatWings
+-  YouTube: https://youtube.com/@MattBatWings"""
+
+# License message
 license_mess = """# ******************************************************************************* #
 # Copyright (c) 2024 ProtoSebastian (https://github.com/ProtoSebastian)           #
 #                                                                                 #
