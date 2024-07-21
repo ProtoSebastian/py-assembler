@@ -1,5 +1,5 @@
 # ******************************************************************************* #
-# Copyright (c) 2024 ProtoSebastian                                               #
+# Copyright (c) 2024 ProtoSebastian (https://github.com/ProtoSebastian)           #
 #                                                                                 #
 #  Permission is hereby granted, free of charge, to any person obtaining a copy   #
 #  of this software and associated documentation files (the "Software"), to deal  #
@@ -7,6 +7,9 @@
 #  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell      #
 #  copies of the Software, and to permit persons to whom the Software is          #
 #  furnished to do so, subject to the following conditions:                       #
+#                                                                                 #
+#  The above copyright notice and this permission notice shall be included in all #
+#  copies or substantial portions of the Software.                                #
 #                                                                                 #
 #  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR     #
 #  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,       #
@@ -56,20 +59,29 @@ Notes:
   Parameters for single character options can be separated and unseparated, so:
   "-Ooutput.bin" and "-O output.bin" are both valid."""
 
-# Credits/license message (TODO: Add license from original once it's licensed)
+# Credits/license message
 credits_mess = """Credits:
   Author of the base code (none of which remains now) is @MattBatWings at
    GitHub: https://github.com/MattBatWings
    YouTube: https://youtube.com/@MattBatWings
 
-  ISA author is @SLicudis at
-   GitHub: https://github.com/SLicudis
-   YouTube: https://youtube.com/channel/UCh1aWTr9YdXR--Wv79PErZQ
-
   Code author is @ProtoSebastian at
    GitHub: https://github.com/ProtoSebastian"""
+license_mess = """# ******************************************************************************* #
+# Copyright (c) 2024 ProtoSebastian (https://github.com/ProtoSebastian)           #
+#                                                                                 #
+#  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR     #
+#  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,       #
+#  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE    #
+#  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER         #
+#  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,  #
+#  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE  #
+#  SOFTWARE.                                                                      #
+# ******************************************************************************* #
+"""
 
 def print_version():
+    print(license_mess)
     print(credits_mess)
 
     version_string, version_format = render_version(VERSION, VER_FMT)

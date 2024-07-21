@@ -1,5 +1,5 @@
 # ******************************************************************************* #
-# Copyright (c) 2024 ProtoSebastian                                               #
+# Copyright (c) 2024 ProtoSebastian (https://github.com/ProtoSebastian)           #
 #                                                                                 #
 #  Permission is hereby granted, free of charge, to any person obtaining a copy   #
 #  of this software and associated documentation files (the "Software"), to deal  #
@@ -7,6 +7,9 @@
 #  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell      #
 #  copies of the Software, and to permit persons to whom the Software is          #
 #  furnished to do so, subject to the following conditions:                       #
+#                                                                                 #
+#  The above copyright notice and this permission notice shall be included in all #
+#  copies or substantial portions of the Software.                                #
 #                                                                                 #
 #  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR     #
 #  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,       #
@@ -20,7 +23,7 @@ from math import log2, log
 from math import inf as INFINITY
 
 # MAJOR, MINOR, PATCH, PRE-RELEASE IDENTIFIER, BUILD (https://semver.org)
-VERSION = ['6','0','0','EXPERIMENTAL','2']
+VERSION = ['6','0','0','EXPERIMENTAL','3']
 # display like "MAJOR.MINOR.PATCH[-PRE-RELEASE IDENT][+BUILD]", [] = omitted if empty
 VER_FMT = "{0}.{1}.{2}[-{3}][+{4}]"
 # Size prefixes
@@ -158,7 +161,7 @@ def render_version(version, version_format):
             to_print+=version_format[idx:idx_end]
             idx=idx_end
     
-    return (to_print.format(*version), to_print.format('MAJOR','MINOR','PATCH','PRE-RELEASE','BUILD'))
+    return (to_print.format(*version), to_print.format('MAJOR','MINOR','PATCH','PRERELEASE IDENTIFIER','BUILD'))
 # Special print
 def type_print(x):
     if(type(x) == str):
