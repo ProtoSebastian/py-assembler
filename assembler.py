@@ -784,7 +784,7 @@ def load_config(config_filename: str, verbose_level: int):
 
 ###- MAIN THING -###
 # Assemble function
-def assemble(assembly_filename: str, ROM_size: int, verbose_level: int, debug_flags: int, matt_mode: bool):
+def assemble(assembly_filename: str, ROM_size: int, ROM_offset: int, verbose_level: int, debug_flags: int, matt_mode: bool):
     if(debug_flags & 0b1100):
         if(debug_flags & 0x8):
             print("ISA-defined symbols:")
@@ -1461,7 +1461,7 @@ def assemble(assembly_filename: str, ROM_size: int, verbose_level: int, debug_fl
     return output_machine_code
 
 # Formats output of the assembler
-def formatter(assembler_output, output_file, rom_size, padding_word, format_style, verbose_level):
+def formatter(assembler_output: list, output_file: str, rom_size: int, rom_offset: int, padding_word: int, format_style: str, verbose_level: int):
     format_style = format_style.lower()
     ROM_address_size = int(log2(rom_size) + 3) >> 2
     word_size = (WORD_LENGTH + 3) >> 2

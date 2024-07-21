@@ -274,13 +274,14 @@ def main():
         if(not SIZE_PREFIX.isdecimal()):
             print(f" or {dbg_input_size} {dbg_input_specifier}words", end='')
         print('.')
+        print(f"main: ROM offset is 0x%X"%(ROM_offset))
     if(verbosity >= 1):
-        print("main: Padding word is \'0x%04X\'"%padding_word)
+        print("main: Padding word is \'0x%0*X\'"%((WORD_LENGTH + 3) >> 2, padding_word))
     if(verbosity >= 2):
         print("main: Baking constants..")
     bake_constants(matt_mode)
-    machine_code_output = assemble(input_file, ROM_size, verbosity - 1, debug_flags, matt_mode)
-    formatter(machine_code_output, output_file, ROM_offset + ROM_size, padding_word, format_style, verbosity)
+    machine_code_output = assemble(input_file, ROM_size, ROM_offset, verbosity - 1, debug_flags, matt_mode)
+    formatter(machine_code_output, output_file, ROM_size, ROM_offset, padding_word, format_style, verbosity)
 
     # Success message
     print("main: Assembly successful.")
