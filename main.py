@@ -34,7 +34,8 @@ Options:
                             'iB' is optional. case-insensitive)
                             defaults to config.
   -o --rom-offset <offset>  Set ROM offset in words. This'll offset where the-
-                            instructions physically are in the program.
+                            instructions physically are in the output file so-
+                            it can be flashed directly to the ROM.
                             defaults to config.
   -p --padding-word <word>  Set what the padding should be. hexadecimal or-
                             binary inputs should be prefixed with '0x' and '0b'-

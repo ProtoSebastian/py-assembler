@@ -1,17 +1,10 @@
 > [!IMPORTANT]
-> Changes are currently all temporary; everything is subject to change.
-> For now, please only use https://github.com/ProtoSebastian/newcpu
+> Changes are currently all temporary; everything is subject to change. (also it's unusable atm)
+>
+> For now, please only use https://github.com/ProtoSebastian/newcpu (but still check here for updates!)
 
 # Intro
-A fork of [@MattBatWings](https://github.com/MattBatWings)'s assembler that I kept adding features to while keeping it a superset of the original.
-
-Implements [@SLicudis](https://github.com/SLicudis)' SRM ISA.
-
-The project: https://github.com/SLicudis/SRM
-
-Link to the ISA spreadsheet: https://docs.google.com/spreadsheets/d/1yLL9NnpTEgsyDEuP0pVivhbKop4ux6Byrx3yw5dqJ-k/edit?usp=sharing
-
-![KP8B Logo](images/logo_KP8B.jpg)
+An assembler made in python, with the primary goal of being easy to adapt!
 
 # Usage
 Run main.py with python (in a <u>command-line/terminal!!!)</u> and pass the options <u>after</u> 'main.py'.
@@ -31,9 +24,11 @@ Example:
 > Note: Single character options can be used without separating the parameter.
 > '-s1k' is as valid as '-s 1k'
 
+### `-I --config-file <file>`
+  Sets input config filename. (defaults to 'default.config')
 ### `-O --output <file>`
 
-  Sets output filename.
+  Sets output filename. (defaults to 'output.mc')
 
   Example:
 
@@ -45,6 +40,8 @@ Example:
 
   Set ROM size in [words](#word). May be followed by suffixes for KiB, MiB, GiB, TiB, PiB, EiB, ZiB, YiB. (the 'iB' is optional. case-insensitive)
 
+  (defaults to config)
+
   Example:
 
    `-s 64k`/`-s 64kib`
@@ -55,9 +52,25 @@ Example:
 
    will set ROM size to 64 words.
 
+### `-o --rom-offset <offset>`
+
+  Set ROM offset in [words](#word). (where the ROM part of your machine's memory starts)
+
+  This'll offset where the instructions physically are in the output file. (so it can be flashed directly to the ROM)
+
+  (defaults to config)
+
+  Example:
+
+   `-o 0x20000`
+
+   will set ROM offset to 0x20000
+
 ### `-p --padding-word <word>`
 
   Set what the padding [word](#word) should be, defaults to all 0s. hexadecimal or binary inputs should be prefixed with '0x' and '0b' respectively.
+
+  (defaults to config)
   
   Example:
   
@@ -123,7 +136,7 @@ Example:
 
 ### `-V --version`
 
-  Prints version and credits.
+  Prints license, credits, and version. (in that order!)
 
 ## <a id="formats">Formats</a>
 <a id="format-matt">Matt</a>
