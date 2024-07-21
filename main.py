@@ -255,13 +255,15 @@ def main():
     load_config_out = load_config(config_file, verbosity)
     # Only write if it hasn't been overriden by parameters
     if(ROM_size == None):
-        ROM_size = load_config_out[0]
+        ROM_size = load_config_out[0][0]
+        dbg_input_size = load_config_out[0][1]
+        dbg_input_specifier = load_config_out[0][2]
     if(ROM_offset == None):
         ROM_offset = load_config_out[1]
     if(padding_word == None):
         padding_word = load_config_out[2]
+    WORD_LENGTH = load_config_out[3]
     print("s %X\no 0x%X\np 0x%X"%(ROM_size, ROM_offset, padding_word))
-    exit()
     # Assemble
     if(ROM_size == None):
         fatal_error('main', "No ROM size specified, cannot continue.\nPlease specify a ROM size as a parameter or in the config file.")
@@ -271,12 +273,13 @@ def main():
         fatal_error('main', "No padding word specified, cannot continue.\nPlease specify a padding word as a parameter or in the config file.")
     if(verbosity >= 1):
         print(f"main: ROM size is {str(ROM_size)} words", end='')
-        if(not SIZE_PREFIX.isdecimal()):
-            print(f" or {dbg_input_size} {dbg_input_specifier}words", end='')
+        if(not dbg_input_specifier.isdecimal()):
+            print(f" or {dbg_input_size} {SIZE_PREFIX_FULL[dbg_input_specifier]}words", end='')
         print('.')
         print(f"main: ROM offset is 0x%X"%(ROM_offset))
     if(verbosity >= 1):
         print("main: Padding word is \'0x%0*X\'"%((WORD_LENGTH + 3) >> 2, padding_word))
+    exit()
     if(verbosity >= 2):
         print("main: Baking constants..")
     bake_constants(matt_mode)

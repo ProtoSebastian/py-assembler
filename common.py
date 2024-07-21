@@ -20,7 +20,7 @@ from math import log2, log
 from math import inf as INFINITY
 
 # MAJOR, MINOR, PATCH, PRE-RELEASE IDENTIFIER, BUILD (https://semver.org)
-VERSION = ['6','0','0','BETA','1']
+VERSION = ['6','0','0','EXPERIMENTAL','2']
 # display like "MAJOR.MINOR.PATCH[-PRE-RELEASE IDENT][+BUILD]", [] = omitted if empty
 VER_FMT = "{0}.{1}.{2}[-{3}][+{4}]"
 # Size prefixes
@@ -75,7 +75,7 @@ def calculate_size(SIZE_PARAM: str, caller: str):
     else:
         ROM_size = int(SIZE) * (1024 ** SIZE_PREFIX_DEFS[SIZE_PREFIX])
 
-    return (ROM_size, SIZE, SIZE_PREFIX_FULL[SIZE_PREFIX])
+    return (ROM_size, SIZE, SIZE_PREFIX)
 # how do I explain this
 def find_nz(string:str, delimiter:str, start:int=0):
     output=str.find(string, delimiter, start)

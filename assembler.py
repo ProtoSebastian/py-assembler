@@ -767,9 +767,39 @@ def bake_constants(matt_mode):
                     maxim=len(operand)
                 else:
                     fatal_error('assembler', f"baking stage: wtf: Optional operand \'{operands[idx-1][0][5]}\' declared inbetween mandatory ones in instruction \'{opcode.upper()}\' variation {variation_index}! (Will cause problems later)")
+# Decompose instruction params (+ character literals with both ' and ")
+def decompose_config_params(string: str, filename: str, line: int, caller: str):
+    idx = 0
+    output = []
+    while(idx < len(string)):
+        idx = inverted_strfind(string, OPERAND_SEPARATORS, idx)
+        if(idx == -1):
+            break
+        if(string[idx] == '['):
+            idx += 1
+            idx_end = strfind_escape(string, ']', idx)
+            if(idx_end == -1):
+                fatal_error('assembler', f"{caller}: {filename}:{line}:{idx + 1}: Missing closing bracket.\n{string}\n{' ' * (idx - 1)}^{'~' * (len(string) - idx)}")
+            params = decompose_config_params(string[idx:idx_end].strip(), filename, line, caller + " handling list:")
+            if(len(params) == 0):
+                fatal_error('assembler', f"{caller}: {filename}:{line}:{idx + 1}: Empty list.\n{string}\n{' ' * (idx - 1)}^{'~' * (idx_end - idx + 1)}")
+            output.append(params)
+            idx_end += 1
+        else:
+            if(string[idx] == '\"'): # String
+                idx, idx_end, constants = string_constant(string, idx, filename, line, caller, False, 0)
+                output.append(constants[0][0])
+            else: # Normal
+                idx_end = strfind(string, OPERAND_SEPARATORS, idx)
+                if(idx_end == -1):
+                    output.append(string[idx:])
+                    break
+                output.append(string[idx:idx_end])
+        idx = idx_end
+    return output
 # returns ROM size then ROM offset then padding word
 def load_config(config_filename: str, verbose_level: int):
-    ROM_size = ROM_offset = padding_word = None
+    ROM_size = dbg_input_size = dbg_input_specifier = ROM_offset = padding_word = None
     if(verbose_level >= 1):
         print(f"load_config: Reading from \'{config_filename}\'")
     try:
@@ -778,9 +808,65 @@ def load_config(config_filename: str, verbose_level: int):
         fatal_error('assembler', f"load_config: {config_filename}: File not found.\n{_ERR}")
     lines = [line.strip() for line in config_file]
     config_file.close()
-    print(lines)
 
-    return (ROM_size, ROM_offset, padding_word)
+    # Remove comments and blanklines, and add line number
+    lines = [[remove_comment(COMMENT_SYMBOLS, line).strip(), idx+1] for idx, line in enumerate(lines)]
+
+    # Remove empty lines & add line numbers
+    lines = [line for line in lines if(len(line[0]) != 0)]
+
+    # Decompose and process
+    fields = ['options', 'operands', 'instructions', 'macros', 'symbols']
+    mode = 0
+    line_index = 0
+    while(line_index < len(lines)):
+        line = lines[line_index]
+        line_number = line[1]
+        if(line[0][0] == '['): # Field
+            new_field = line[0][1:line[0].find(']')].strip().lower()
+            mode = fields.index(new_field)
+            print("New field \'%s\', mode %d"%(new_field, mode))
+            line_index += 1
+            continue
+        idx = strfind(line[0], ' ')
+        idx2 = inverted_strfind(line[0], ' ', idx)
+        first_word = []
+        if(idx != -1):
+            first_word.append(line[0][0:idx])
+        else:
+            first_word.append(line[0])
+        if((mode == 1) and (first_word[0] != 'opcode')):
+            idx = inverted_strfind(line[0], ' ', idx)
+            idx2 = strfind(line[0], ' ', idx)
+            first_word.append(line[0][idx:idx2])
+        params = []
+        if(idx2 != -1):
+            params = decompose_config_params(line[0][idx2:], config_filename, line_number, 'load_config')
+
+        if(mode == 1):
+            params[0] += params[0][1].split(':')
+            params[0].pop(1)
+
+        print(' '.join(first_word) + ' ' + ', '.join(str(param) for param in params))
+
+        if(mode == 0):
+            match(first_word[0].lower()):
+                case 'word_size':
+                    WORD_LENGTH = int(params[0], 0)
+                case 'instruction_max_length':
+                    INSTRUCTION_MAX_LENGTH = int(params[0], 0)
+                case 'rom_size':
+                    ROM_size, dbg_input_size, dbg_input_specifier = calculate_size(params[0], 'load_config')
+                case 'rom_offset':
+                    ROM_offset = int(params[0], 0)
+                case 'padding_word':
+                    padding_word = int(params[0], 0)
+                case other:
+                    fatal_error('assembler', f"load_config: {config_filename}:{line_number}: [{fields[mode]}]: Unknown option \'{first_word[0]}\'")
+        # TODO: the rest lol
+
+        line_index += 1
+    return ([ROM_size, dbg_input_size, dbg_input_specifier], ROM_offset, padding_word, WORD_LENGTH)
 
 ###- MAIN THING -###
 # Assemble function
