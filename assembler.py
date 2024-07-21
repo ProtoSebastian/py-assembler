@@ -767,7 +767,7 @@ def bake_constants(matt_mode):
                     maxim=len(operand)
                 else:
                     fatal_error('assembler', f"baking stage: wtf: Optional operand \'{operands[idx-1][0][5]}\' declared inbetween mandatory ones in instruction \'{opcode.upper()}\' variation {variation_index}! (Will cause problems later)")
-# Decompose instruction params (+ character literals with both ' and ")
+# Decompose config parameters
 def decompose_config_params(string: str, filename: str, line: int, caller: str):
     idx = 0
     output = []
