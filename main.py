@@ -16,7 +16,7 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE  #
 #  SOFTWARE.                                                                      #
 # ******************************************************************************* #
-from assembler import assemble, formatter, bake_constants, WORD_LENGTH
+from assembler import assemble, formatter, bake_constants, load_config, WORD_LENGTH
 import sys
 from common import *
 from math import log2
@@ -24,26 +24,32 @@ from math import log2
 # Help message
 help_mess = """Usage: python main.py <options> -s <ROM size> file...
 Options:
-  -O --output <file>        Set output file.
+  -I --config-file <file>   Set config file. defaults to 'default.config'
+  -O --output <file>        Set output file. defaults to 'output.mc'
   -s --rom-size <size>      Set ROM size in words. May be followed by suffixes-
                             for KiB, MiB, GiB, TiB, PiB, EiB, ZiB, YiB. (the-
                             'iB' is optional. case-insensitive)
-  -p --padding-word <word>  Set what the padding should be. defaults to all 0s.
-                            hexadecimal or binary inputs should be prefixed-
-                            with '0x' and '0b' respectively.
+                            defaults to config.
+  -o --rom-offset <offset>  Set ROM offset in words. This'll offset where the-
+                            instructions physically are in the program.
+                            defaults to config.
+  -p --padding-word <word>  Set what the padding should be. hexadecimal or-
+                            binary inputs should be prefixed with '0x' and '0b'-
+                            respectively. defaults to config.
   -f --output-format <format>
-                            Set the output format, possible formats are: (default is Matt)
-                            Matt, Raw, Image, Hexdump, Logisim3, Logisim2, DEBUG.
-                            (case-insensitive)
-  -M --matt-mode            Enables Matt mode, which disables DB & ORG directives, and-
-                            multi-line pseudo-instructions, to remove jumps in address-
-                            and make every line translate to exactly 1 machine code line.
+                            Set the output format, possible formats are:
+                            Matt, Raw, Image, Hexdump, Logisim3, Logisim2,-
+                            DEBUG. (default is Matt, case-insensitive)
+  -M --matt-mode            Enables Matt mode, which disables DB & ORG-
+                            directives, and multi-line pseudo-instructions, to-
+                            remove jumps in address and make every line-
+                            translate to exactly 1 machine code line.
      --dump-instructions    Dump instructions, then exit. (native and pseudo)
      --dump-symbols         Dump symbols defined by the ISA, then exit.
      --dump-labels          Dump labels after assembly.
      --dump-definitions     Dump definitions after assembly.
-  -v                        Verbose output. (more v's means higher-
-                            verbosity. above level 4 there is no effect)
+  -v                        Verbose output. (more v's means higher verbosity,-
+                            above level 4 there is no effect)
   -h --help                 Print this message and quit.
   -V --version              Print version and quit.
 Notes:
@@ -78,38 +84,6 @@ def handle_unknown_switch(statement: str):
     print_help()
     fatal_error('main', f"Unknown switch statement '{statement}'.")
 
-def calculate_size(SIZE_PARAM: str, verbosity: int):
-    ROM_size = 0 # La output
-    # Separate number and prefix
-    SIZE_PARAM  = SIZE_PARAM.lower()
-    SIZE_PREFIX = SIZE_PARAM[-3:]
-    if(SIZE_PREFIX.isdecimal()):
-        SIZE = SIZE_PARAM
-    elif(SIZE_PREFIX[0] in SIZE_PREFIX_DEFS):
-        SIZE_PREFIX = SIZE_PARAM[-3]
-        SIZE = SIZE_PARAM[:-3]
-    else:
-        SIZE_PREFIX = SIZE_PARAM[-1]
-        SIZE = SIZE_PARAM[:-1]
-    # Verify both
-    if(not SIZE.isdecimal()):
-        fatal_error('main', f"\'{SIZE}\' is not numeric")
-    if((SIZE_PREFIX not in SIZE_PREFIX_DEFS) and (not SIZE_PREFIX.isdecimal())):
-        fatal_error('main', f"Could not understand size suffix \'{SIZE_PREFIX}\', known suffixes: {', '.join(SIZE_PREFIX_DEFS)} (case insensitive)")
-    
-    # Calculate size
-    if(SIZE_PREFIX.isdecimal()):
-        ROM_size = int(SIZE)
-    else:
-        ROM_size = int(SIZE) * (1024 ** SIZE_PREFIX_DEFS[SIZE_PREFIX])
-    if(verbosity >= 1):
-        print(f"main: ROM size set to {str(ROM_size)} words", end='')
-        if(not SIZE_PREFIX.isdecimal()):
-            print(f" or {SIZE} {SIZE_PREFIX_FULL[SIZE_PREFIX]}words", end='')
-        print('.')
-
-    return ROM_size
-
 def interpret_int(input_string: str):
     try:
         return int(input_string, 0)
@@ -118,10 +92,12 @@ def interpret_int(input_string: str):
 
 def main():
     # Fancy switch processing
+    config_file = 'default.config' # default to 'default.config'
     input_file  = ''          # no defaults. I mean, why would you default an input file??
     output_file = 'output.mc' # default to 'output.mc'
+    ROM_offset  = None
     ROM_size    = None
-    padding_word= 0
+    padding_word= None
     format_style= 'matt'
     debug_flags = 0
     verbosity   = 0
@@ -129,6 +105,7 @@ def main():
 
     matt_mode = False
 
+    dbg_input_size = dbg_input_specifier = None
     idx=1
     while(idx < len(sys.argv)):
         # Handle options
@@ -143,14 +120,22 @@ def main():
                 case '--version':
                     print_version()
                     exit()
+                # Config file
+                case '--config-file':
+                    idx += 1
+                    config_file = sys.argv[idx]
                 # Output file
                 case '--output':
                     idx += 1
-                    output_file=sys.argv[idx]
+                    output_file = sys.argv[idx]
                 # ROM size
                 case '--rom-size':
                     idx += 1
-                    ROM_size = calculate_size(sys.argv[idx], verbosity)
+                    ROM_size, dbg_input_size, dbg_input_specifier = calculate_size(sys.argv[idx], 'main')
+                # ROM offset
+                case '--rom-offset':
+                    idx += 1
+                    ROM_offset = interpret_int(sys.argv[idx])
                 # Padding
                 case '--padding-word':
                     idx += 1
@@ -192,6 +177,13 @@ def main():
                 case '-V':
                     print_version()
                     exit()
+                # Config file
+                case '-I':
+                    if(len(sys.argv[idx])!=2):
+                        config_file=sys.argv[idx][2:]
+                    else:
+                        idx += 1
+                        config_file=sys.argv[idx]
                 # Output file
                 case '-O':
                     if(len(sys.argv[idx])!=2):
@@ -207,7 +199,16 @@ def main():
                     else:
                         idx += 1
                         SIZE_PARAM = sys.argv[idx]
-                    ROM_size = calculate_size(SIZE_PARAM, verbosity)
+                    ROM_size, dbg_input_size, dbg_input_specifier = calculate_size(SIZE_PARAM, 'main')
+                # ROM offset
+                case '-o':
+                    PARAM = ''
+                    if(len(sys.argv[idx])!=2):
+                        PARAM = sys.argv[idx][2:]
+                    else:
+                        idx += 1
+                        PARAM = sys.argv[idx]
+                    ROM_offset = interpret_int(PARAM)
                 # Padding
                 case '-p':
                     PARAM = ''
@@ -245,25 +246,45 @@ def main():
             input_file=term
             input_files+=1
         idx += 1
+
     if(input_file==''):
         print_help()
         fatal_error('main', "No input files were specified.")
 
+    # Load config
+    load_config_out = load_config(config_file, verbosity)
+    # Only write if it hasn't been overriden by parameters
+    if(ROM_size == None):
+        ROM_size = load_config_out[0]
+    if(ROM_offset == None):
+        ROM_offset = load_config_out[1]
+    if(padding_word == None):
+        padding_word = load_config_out[2]
+    print("s %X\no 0x%X\np 0x%X"%(ROM_size, ROM_offset, padding_word))
+    exit()
     # Assemble
     if(ROM_size == None):
-        fatal_error('main', "No ROM size specified, cannot continue.\nPlease specify a ROM size.")
+        fatal_error('main', "No ROM size specified, cannot continue.\nPlease specify a ROM size as a parameter or in the config file.")
+    if(ROM_offset == None):
+        fatal_error('main', "No ROM offset specified, cannot continue.\nPlease specify a ROM offset as a parameter or in the config file.")
+    if(padding_word == None):
+        fatal_error('main', "No padding word specified, cannot continue.\nPlease specify a padding word as a parameter or in the config file.")
+    if(verbosity >= 1):
+        print(f"main: ROM size is {str(ROM_size)} words", end='')
+        if(not SIZE_PREFIX.isdecimal()):
+            print(f" or {dbg_input_size} {dbg_input_specifier}words", end='')
+        print('.')
     if(verbosity >= 1):
         print("main: Padding word is \'0x%04X\'"%padding_word)
     if(verbosity >= 2):
         print("main: Baking constants..")
     bake_constants(matt_mode)
     machine_code_output = assemble(input_file, ROM_size, verbosity - 1, debug_flags, matt_mode)
-    formatter(machine_code_output, output_file, ROM_size, padding_word, format_style, verbosity)
+    formatter(machine_code_output, output_file, ROM_offset + ROM_size, padding_word, format_style, verbosity)
 
     # Success message
     print("main: Assembly successful.")
     # simulate('output.mc')
-
 
 if __name__ == '__main__':
     main()

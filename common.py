@@ -20,7 +20,7 @@ from math import log2, log
 from math import inf as INFINITY
 
 # MAJOR, MINOR, PATCH, PRE-RELEASE IDENTIFIER, BUILD (https://semver.org)
-VERSION = ['5','0','2','BETA','9']
+VERSION = ['6','0','0','BETA','0']
 # display like "MAJOR.MINOR.PATCH[-PRE-RELEASE IDENT][+BUILD]", [] = omitted if empty
 VER_FMT = "{0}.{1}.{2}[-{3}][+{4}]"
 # Size prefixes
@@ -49,6 +49,33 @@ SIZE_PREFIX_FULL = {
 # Display error message
 def fatal_error(origin, message):
     exit(f"{origin}: fatal error: {message}")
+# calculate size
+def calculate_size(SIZE_PARAM: str, caller: str):
+    ROM_size = 0 # La output
+    # Separate number and prefix
+    SIZE_PARAM  = SIZE_PARAM.lower()
+    SIZE_PREFIX = SIZE_PARAM[-3:]
+    if(SIZE_PREFIX.isdecimal()):
+        SIZE = SIZE_PARAM
+    elif(SIZE_PREFIX[0] in SIZE_PREFIX_DEFS):
+        SIZE_PREFIX = SIZE_PARAM[-3]
+        SIZE = SIZE_PARAM[:-3]
+    else:
+        SIZE_PREFIX = SIZE_PARAM[-1]
+        SIZE = SIZE_PARAM[:-1]
+    # Verify both
+    if(not SIZE.isdecimal()):
+        fatal_error('common', f"{caller}: calculate_size: \'{SIZE}\' is not numeric")
+    if((SIZE_PREFIX not in SIZE_PREFIX_DEFS) and (not SIZE_PREFIX.isdecimal())):
+        fatal_error('common', f"{caller}: calculate_size: Could not understand size suffix \'{SIZE_PREFIX}\', known suffixes: {', '.join(SIZE_PREFIX_DEFS)} (case insensitive)")
+    
+    # Calculate size
+    if(SIZE_PREFIX.isdecimal()):
+        ROM_size = int(SIZE)
+    else:
+        ROM_size = int(SIZE) * (1024 ** SIZE_PREFIX_DEFS[SIZE_PREFIX])
+
+    return (ROM_size, SIZE, SIZE_PREFIX_FULL[SIZE_PREFIX])
 # how do I explain this
 def find_nz(string:str, delimiter:str, start:int=0):
     output=str.find(string, delimiter, start)

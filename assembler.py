@@ -26,11 +26,14 @@ OPERAND_SEPARATORS = ', \t'
 # Space characters for inbetween operands and instruction
 INSTRUCTION_SPACING = ' \t'
 # Opcode position in first word; how much to shift opcode relative to the first word (in bits, left)
-OPCODE_POSITION = 4
+#OPCODE_POSITION = 4
+OPCODE_POSITION = None
 # Word length in bits
-WORD_LENGTH = 8
+#WORD_LENGTH = 8
+WORD_LENGTH = None
 # Max length an instruction can have (in words)
-INSTRUCTION_MAX_LENGTH = 4
+#INSTRUCTION_MAX_LENGTH = 4
+INSTRUCTION_MAX_LENGTH = None
 
 ###- ALL POSSIBLE OPERANDS -###
 # Operands
@@ -46,18 +49,18 @@ INSTRUCTION_MAX_LENGTH = 4
 ## For the first word in every line, bits 0-2 all have to be 0, and bits 3-5 represent the type of the line (Label, Definition, ORG, DB, Instruction)
 ## The rest are up to you
 OPERANDS= {
-            'a':[0, 3, 20, 0, 0b0110101, "Full address immediate"], # An address by itself ; [addr]
-            'd':[0, 3, 20, 0, 0b0010101, "Address"],                # An address meant to be next to something else ; [addr, 
-            'D':[4, 1, 4,  0, 0b0000010, "Destination register"],   # Destination register for operations ; %dest
-            'S':[4, 1, 4,  0, 0b0000010, "Source register"],        # Source register for operations ; %src
-            'A':[0, 1, 4,  0, 0b0000010, "Register A"],             # Register A parameter in operations ; %A
-            'B':[4, 2, 4,  0, 0b0000010, "Register B"],             # Register B parameter in operations ; %B
-            'I':[0, 3, 16, 1, 0b0000001, "Immediate"],              # A 2 byte immediate for operations ; imm
-            'F':[4, 1, 4,  0, 0b0000001, "Flag"],                   # The flag in SF/CF ; flag
-            'X':[0, 0, 0,  0, 0xA6,      "Register BX"],            # Detects when register BX is specifically used, accompanies an address to offset it ; %BX]
-            'Y':[0, 1, 4,  0, 0b0010101, "Page"],                   # Immediate used to select the page ; [page,
-            'P':[4, 2, 4,  0, 0b0010110, "Page register"],          # Register used to select the page ; [%page,
-            'O':[0, 1, 4,  0, 0b0100110, "Offset register"],        # Register used to select the offset ; %offset]
+#            'a':[0, 3, 20, 0, 0b0110101, "Full address immediate"], # An address by itself ; [addr]
+#            'd':[0, 3, 20, 0, 0b0010101, "Address"],                # An address meant to be next to something else ; [addr, 
+#            'D':[4, 1, 4,  0, 0b0000010, "Destination register"],   # Destination register for operations ; %dest
+#            'S':[4, 1, 4,  0, 0b0000010, "Source register"],        # Source register for operations ; %src
+#            'A':[0, 1, 4,  0, 0b0000010, "Register A"],             # Register A parameter in operations ; %A
+#            'B':[4, 2, 4,  0, 0b0000010, "Register B"],             # Register B parameter in operations ; %B
+#            'I':[0, 3, 16, 1, 0b0000001, "Immediate"],              # A 2 byte immediate for operations ; imm
+#            'F':[4, 1, 4,  0, 0b0000001, "Flag"],                   # The flag in SF/CF ; flag
+#            'X':[0, 0, 0,  0, 0xA6,      "Register BX"],            # Detects when register BX is specifically used, accompanies an address to offset it ; %BX]
+#            'Y':[0, 1, 4,  0, 0b0010101, "Page"],                   # Immediate used to select the page ; [page,
+#            'P':[4, 2, 4,  0, 0b0010110, "Page register"],          # Register used to select the page ; [%page,
+#            'O':[0, 1, 4,  0, 0b0100110, "Offset register"],        # Register used to select the offset ; %offset]
           }
 
 ###- NATIVE INSTRUCTIONS -###
@@ -65,125 +68,125 @@ OPERANDS= {
 # [A=0] means operand A is optional and defaults to 0
 # - parameter type requirements are derived from operand flag type flags
 OPCODES = {
-           'nop' :[[0x0, '',     0x00000000, 4],], # Do nothing club
-
-           'brk' :[[0x1, '',     0x00000000, 4],], # Hey, listen!
-
-           'add' :[[0x2, 'DAB',  0x00000000, 4],   # Arithmetic
-                   [0x3, 'DAI',  0x00000000, 4],],
-           'adc' :[[0x2, 'DAB',  0x01000000, 4],
-                   [0x3, 'DAI',  0x01000000, 4],],
-           'sub' :[[0x2, 'DAB',  0x02000000, 4],
-                   [0x3, 'DAI',  0x02000000, 4],],
-           'sbb' :[[0x2, 'DAB',  0x03000000, 4],
-                   [0x3, 'DAI',  0x03000000, 4],],
-           'and' :[[0x2, 'DAB',  0x04000000, 4],
-                   [0x3, 'DAI',  0x04000000, 4],],
-           'or'  :[[0x2, 'DAB',  0x05000000, 4],
-                   [0x3, 'DAI',  0x05000000, 4],],
-           'xor' :[[0x2, 'DAB',  0x06000000, 4],
-                   [0x3, 'DAI',  0x06000000, 4],],
-           'shr' :[[0x2, 'DA',   0x07000000, 4],],
-           'src' :[[0x2, 'DA',   0x08000000, 4],],
-           'asr' :[[0x2, 'DA',   0x09000000, 4],],
-           'ror' :[[0x2, 'DA',   0x0A000000, 4],],
-           'rol' :[[0x2, 'DA',   0x0B000000, 4],],
-           'neg' :[[0x2, 'DA',   0x0C000000, 4],],
-
-           'str' :[[0x4, 'Sa',   0x00000000, 4],   # Data control
-                   [0x4, 'SdX',  0x01000000, 4],
-                   [0x4, 'SYO',  0x02000000, 4],
-                   [0x4, 'SPO',  0x03000000, 4],],
-           'lod' :[[0x5, 'Da',   0x00000000, 4],
-                   [0x5, 'DdX',  0x01000000, 4],
-                   [0x5, 'DYO',  0x02000000, 4],
-                   [0x5, 'DPO',  0x03000000, 4],],
-           'psh' :[[0x6, 'Sa',   0x00000000, 4],
-                   [0x6, 'SdX',  0x01000000, 4],
-                   [0x6, 'SYO',  0x02000000, 4],
-                   [0x6, 'SPO',  0x03000000, 4],],
-           'pop' :[[0x7, 'Da',   0x00000000, 4],
-                   [0x7, 'DdX',  0x01000000, 4],
-                   [0x7, 'DYO',  0x02000000, 4],
-                   [0x7, 'DPO',  0x03000000, 4],],
-
-           'jmp' :[[0x8, 'a',    0x00000000, 4],   # Branching
-                   [0x8, 'dX',   0x01000000, 4],
-                   [0x8, 'YO',   0x02000000, 4],
-                   [0x8, 'PO',   0x03000000, 4],],
-           'jz'  :[[0x9, 'a',    0x00000000, 4],
-                   [0x9, 'dX',   0x01000000, 4],
-                   [0x9, 'YO',   0x02000000, 4],
-                   [0x9, 'PO',   0x03000000, 4],],
-           'jc'  :[[0x9, 'a',    0x00100000, 4],
-                   [0x9, 'dX',   0x01100000, 4],
-                   [0x9, 'YO',   0x02100000, 4],
-                   [0x9, 'PO',   0x03100000, 4],],
-           'jo'  :[[0x9, 'a',    0x00200000, 4],
-                   [0x9, 'dX',   0x01200000, 4],
-                   [0x9, 'YO',   0x02200000, 4],
-                   [0x9, 'PO',   0x03200000, 4],],
-           'js'  :[[0x9, 'a',    0x00300000, 4],
-                   [0x9, 'dX',   0x01300000, 4],
-                   [0x9, 'YO',   0x02300000, 4],
-                   [0x9, 'PO',   0x03300000, 4],],
-           'jg'  :[[0x9, 'a',    0x00400000, 4],
-                   [0x9, 'dX',   0x01400000, 4],
-                   [0x9, 'YO',   0x02400000, 4],
-                   [0x9, 'PO',   0x03400000, 4],],
-           'jl'  :[[0x9, 'a',    0x00500000, 4],
-                   [0x9, 'dX',   0x01500000, 4],
-                   [0x9, 'YO',   0x02500000, 4],
-                   [0x9, 'PO',   0x03500000, 4],],
-           'jb'  :[[0x9, 'a',    0x00600000, 4],
-                   [0x9, 'dX',   0x01600000, 4],
-                   [0x9, 'YO',   0x02600000, 4],
-                   [0x9, 'PO',   0x03600000, 4],],
-           'ji'  :[[0x9, 'a',    0x00700000, 4],
-                   [0x9, 'dX',   0x01700000, 4],
-                   [0x9, 'YO',   0x02700000, 4],
-                   [0x9, 'PO',   0x03700000, 4],],
-           'jnz' :[[0x9, 'a',    0x00800000, 4],
-                   [0x9, 'dX',   0x01800000, 4],
-                   [0x9, 'YO',   0x02800000, 4],
-                   [0x9, 'PO',   0x03800000, 4],],
-           'jnc' :[[0x9, 'a',    0x00900000, 4],
-                   [0x9, 'dX',   0x01900000, 4],
-                   [0x9, 'YO',   0x02900000, 4],
-                   [0x9, 'PO',   0x03900000, 4],],
-           'jno' :[[0x9, 'a',    0x00A00000, 4],
-                   [0x9, 'dX',   0x01A00000, 4],
-                   [0x9, 'YO',   0x02A00000, 4],
-                   [0x9, 'PO',   0x03A00000, 4],],
-           'jns' :[[0x9, 'a',    0x00B00000, 4],
-                   [0x9, 'dX',   0x01B00000, 4],
-                   [0x9, 'YO',   0x02B00000, 4],
-                   [0x9, 'PO',   0x03B00000, 4],],
-           'jle' :[[0x9, 'a',    0x00C00000, 4],
-                   [0x9, 'dX',   0x01C00000, 4],
-                   [0x9, 'YO',   0x02C00000, 4],
-                   [0x9, 'PO',   0x03C00000, 4],],
-           'jge' :[[0x9, 'a',    0x00D00000, 4],
-                   [0x9, 'dX',   0x01D00000, 4],
-                   [0x9, 'YO',   0x02D00000, 4],
-                   [0x9, 'PO',   0x03D00000, 4],],
-           'jnb' :[[0x9, 'a',    0x00E00000, 4],
-                   [0x9, 'dX',   0x01E00000, 4],
-                   [0x9, 'YO',   0x02E00000, 4],
-                   [0x9, 'PO',   0x03E00000, 4],],
-           'jni' :[[0x9, 'a',    0x00F00000, 4],
-                   [0x9, 'dX',   0x01F00000, 4],
-                   [0x9, 'YO',   0x02F00000, 4],
-                   [0x9, 'PO',   0x03F00000, 4],],
-           'cal' :[[0xA, 'a',    0x00000000, 4],
-                   [0xA, 'dX',   0x01000000, 4],
-                   [0xA, 'YO',   0x02000000, 4],
-                   [0xA, 'PO',   0x03000000, 4],],
-           'ret' :[[0xB, '',     0x00000000, 4],],
-           'rti' :[[0xE, '',     0x00000000, 4],],
-
-           'sf'  :[[0xC, 'F',    0x00000000, 4],], # Data control
-           'cf'  :[[0xD, 'F',    0x00000000, 4],],
+#           'nop' :[[0x0, '',     0x00000000, 4],], # Do nothing club
+#
+#           'brk' :[[0x1, '',     0x00000000, 4],], # Hey, listen!
+#
+#           'add' :[[0x2, 'DAB',  0x00000000, 4],   # Arithmetic
+#                   [0x3, 'DAI',  0x00000000, 4],],
+#           'adc' :[[0x2, 'DAB',  0x01000000, 4],
+#                   [0x3, 'DAI',  0x01000000, 4],],
+#           'sub' :[[0x2, 'DAB',  0x02000000, 4],
+#                   [0x3, 'DAI',  0x02000000, 4],],
+#           'sbb' :[[0x2, 'DAB',  0x03000000, 4],
+#                   [0x3, 'DAI',  0x03000000, 4],],
+#           'and' :[[0x2, 'DAB',  0x04000000, 4],
+#                   [0x3, 'DAI',  0x04000000, 4],],
+#           'or'  :[[0x2, 'DAB',  0x05000000, 4],
+#                   [0x3, 'DAI',  0x05000000, 4],],
+#           'xor' :[[0x2, 'DAB',  0x06000000, 4],
+#                   [0x3, 'DAI',  0x06000000, 4],],
+#           'shr' :[[0x2, 'DA',   0x07000000, 4],],
+#           'src' :[[0x2, 'DA',   0x08000000, 4],],
+#           'asr' :[[0x2, 'DA',   0x09000000, 4],],
+#           'ror' :[[0x2, 'DA',   0x0A000000, 4],],
+#           'rol' :[[0x2, 'DA',   0x0B000000, 4],],
+#           'neg' :[[0x2, 'DA',   0x0C000000, 4],],
+#
+#           'str' :[[0x4, 'Sa',   0x00000000, 4],   # Data control
+#                   [0x4, 'SdX',  0x01000000, 4],
+#                   [0x4, 'SYO',  0x02000000, 4],
+#                   [0x4, 'SPO',  0x03000000, 4],],
+#           'lod' :[[0x5, 'Da',   0x00000000, 4],
+#                   [0x5, 'DdX',  0x01000000, 4],
+#                   [0x5, 'DYO',  0x02000000, 4],
+#                   [0x5, 'DPO',  0x03000000, 4],],
+#           'psh' :[[0x6, 'Sa',   0x00000000, 4],
+#                   [0x6, 'SdX',  0x01000000, 4],
+#                   [0x6, 'SYO',  0x02000000, 4],
+#                   [0x6, 'SPO',  0x03000000, 4],],
+#           'pop' :[[0x7, 'Da',   0x00000000, 4],
+#                   [0x7, 'DdX',  0x01000000, 4],
+#                   [0x7, 'DYO',  0x02000000, 4],
+#                   [0x7, 'DPO',  0x03000000, 4],],
+#
+#           'jmp' :[[0x8, 'a',    0x00000000, 4],   # Branching
+#                   [0x8, 'dX',   0x01000000, 4],
+#                   [0x8, 'YO',   0x02000000, 4],
+#                   [0x8, 'PO',   0x03000000, 4],],
+#           'jz'  :[[0x9, 'a',    0x00000000, 4],
+#                   [0x9, 'dX',   0x01000000, 4],
+#                   [0x9, 'YO',   0x02000000, 4],
+#                   [0x9, 'PO',   0x03000000, 4],],
+#           'jc'  :[[0x9, 'a',    0x00100000, 4],
+#                   [0x9, 'dX',   0x01100000, 4],
+#                   [0x9, 'YO',   0x02100000, 4],
+#                   [0x9, 'PO',   0x03100000, 4],],
+#           'jo'  :[[0x9, 'a',    0x00200000, 4],
+#                   [0x9, 'dX',   0x01200000, 4],
+#                   [0x9, 'YO',   0x02200000, 4],
+#                   [0x9, 'PO',   0x03200000, 4],],
+#           'js'  :[[0x9, 'a',    0x00300000, 4],
+#                   [0x9, 'dX',   0x01300000, 4],
+#                   [0x9, 'YO',   0x02300000, 4],
+#                   [0x9, 'PO',   0x03300000, 4],],
+#           'jg'  :[[0x9, 'a',    0x00400000, 4],
+#                   [0x9, 'dX',   0x01400000, 4],
+#                   [0x9, 'YO',   0x02400000, 4],
+#                   [0x9, 'PO',   0x03400000, 4],],
+#           'jl'  :[[0x9, 'a',    0x00500000, 4],
+#                   [0x9, 'dX',   0x01500000, 4],
+#                   [0x9, 'YO',   0x02500000, 4],
+#                   [0x9, 'PO',   0x03500000, 4],],
+#           'jb'  :[[0x9, 'a',    0x00600000, 4],
+#                   [0x9, 'dX',   0x01600000, 4],
+#                   [0x9, 'YO',   0x02600000, 4],
+#                   [0x9, 'PO',   0x03600000, 4],],
+#           'ji'  :[[0x9, 'a',    0x00700000, 4],
+#                   [0x9, 'dX',   0x01700000, 4],
+#                   [0x9, 'YO',   0x02700000, 4],
+#                   [0x9, 'PO',   0x03700000, 4],],
+#           'jnz' :[[0x9, 'a',    0x00800000, 4],
+#                   [0x9, 'dX',   0x01800000, 4],
+#                   [0x9, 'YO',   0x02800000, 4],
+#                   [0x9, 'PO',   0x03800000, 4],],
+#           'jnc' :[[0x9, 'a',    0x00900000, 4],
+#                   [0x9, 'dX',   0x01900000, 4],
+#                   [0x9, 'YO',   0x02900000, 4],
+#                   [0x9, 'PO',   0x03900000, 4],],
+#           'jno' :[[0x9, 'a',    0x00A00000, 4],
+#                   [0x9, 'dX',   0x01A00000, 4],
+#                   [0x9, 'YO',   0x02A00000, 4],
+#                   [0x9, 'PO',   0x03A00000, 4],],
+#           'jns' :[[0x9, 'a',    0x00B00000, 4],
+#                   [0x9, 'dX',   0x01B00000, 4],
+#                   [0x9, 'YO',   0x02B00000, 4],
+#                   [0x9, 'PO',   0x03B00000, 4],],
+#           'jle' :[[0x9, 'a',    0x00C00000, 4],
+#                   [0x9, 'dX',   0x01C00000, 4],
+#                   [0x9, 'YO',   0x02C00000, 4],
+#                   [0x9, 'PO',   0x03C00000, 4],],
+#           'jge' :[[0x9, 'a',    0x00D00000, 4],
+#                   [0x9, 'dX',   0x01D00000, 4],
+#                   [0x9, 'YO',   0x02D00000, 4],
+#                   [0x9, 'PO',   0x03D00000, 4],],
+#           'jnb' :[[0x9, 'a',    0x00E00000, 4],
+#                   [0x9, 'dX',   0x01E00000, 4],
+#                   [0x9, 'YO',   0x02E00000, 4],
+#                   [0x9, 'PO',   0x03E00000, 4],],
+#           'jni' :[[0x9, 'a',    0x00F00000, 4],
+#                   [0x9, 'dX',   0x01F00000, 4],
+#                   [0x9, 'YO',   0x02F00000, 4],
+#                   [0x9, 'PO',   0x03F00000, 4],],
+#           'cal' :[[0xA, 'a',    0x00000000, 4],
+#                   [0xA, 'dX',   0x01000000, 4],
+#                   [0xA, 'YO',   0x02000000, 4],
+#                   [0xA, 'PO',   0x03000000, 4],],
+#           'ret' :[[0xB, '',     0x00000000, 4],],
+#           'rti' :[[0xE, '',     0x00000000, 4],],
+#
+#           'sf'  :[[0xC, 'F',    0x00000000, 4],], # Data control
+#           'cf'  :[[0xD, 'F',    0x00000000, 4],],
           } # Opcodes
 
 ###- PSEUDO-INSTRUCTIONS -###
@@ -192,24 +195,24 @@ OPCODES = {
 # - instructions must be separated by newlines ('\n')
 # - parameter type requirements are derived from operand flag type flags
 PSEUDO_INSTRUCTIONS = {
-           'mvi' :[['add %{0}, %ZX, {1}',   'DI'],],
-           'mov' :[['add %{0}, %ZX, %{1}',  'DA'],],
-           'cmp' :[['sub %ZX, %{0}, %{1}',  'AB'],
-                   ['sub %ZX, %{0}, {1}',   'AI'],],
-           'inc' :[['add %{0}, %{0}, 1',    'D' ],],
-           'dec' :[['sub %{0}, %{0}, 1',    'D' ],],
-           'shl' :[['add %{0}, %{1}, %{1}', 'DA'],],
+#           'mvi' :[['add %{0}, %ZX, {1}',   'DI'],],
+#           'mov' :[['add %{0}, %ZX, %{1}',  'DA'],],
+#           'cmp' :[['sub %ZX, %{0}, %{1}',  'AB'],
+#                   ['sub %ZX, %{0}, {1}',   'AI'],],
+#           'inc' :[['add %{0}, %{0}, 1',    'D' ],],
+#           'dec' :[['sub %{0}, %{0}, 1',    'D' ],],
+#           'shl' :[['add %{0}, %{1}, %{1}', 'DA'],],
          }
 ###- STARTING SYMBOLS -###
 # Dictionary that the assembler starts with
 # [<resolution value>, <custom type flags>]
 # - in most situations custom type flags aren't needed, unless you need custom behavior with the type system.
 STARTING_SYMBOLS = {
-                    'zx' :[0,  0,], 'ax' :[1,  0,], 'bx' :[2,  0x80,], 'cx' :[3,  0,], # Registers
-                    'dx' :[4,  0,], 'ex' :[5,  0,], 'fx' :[6,  0,   ], 'sx' :[7,  0,],
-                    'sy' :[8,  0,], 'al' :[9,  0,], 'bl' :[10, 0,   ], 'cl' :[11, 0,],
-                    'dl' :[12, 0,], 'el' :[13, 0,], 'fl' :[14, 0,   ], 'sl' :[15, 0,],
-                    'reset_vector':[0xFFFF4, 0,], 'interrupt_vector':[0xFFFF8, 0,], 'nmi_vector':[0xFFFFC, 0,], # vectors
+#                    'zx' :[0,  0,], 'ax' :[1,  0,], 'bx' :[2,  0x80,], 'cx' :[3,  0,], # Registers
+#                    'dx' :[4,  0,], 'ex' :[5,  0,], 'fx' :[6,  0,   ], 'sx' :[7,  0,],
+#                    'sy' :[8,  0,], 'al' :[9,  0,], 'bl' :[10, 0,   ], 'cl' :[11, 0,],
+#                    'dl' :[12, 0,], 'el' :[13, 0,], 'fl' :[14, 0,   ], 'sl' :[15, 0,],
+#                    'reset_vector':[0xFFFF4, 0,], 'interrupt_vector':[0xFFFF8, 0,], 'nmi_vector':[0xFFFFC, 0,], # vectors
                    }
 
 ###- UTILITY -###
@@ -364,7 +367,7 @@ def convert_label(word: list):
 # Helper function for displaying the type of a word
 def display_type(word: list, a_or_an: bool = False):
     if(word[1] & 0b111):
-        sentence = "no type/"*((word[1] >> 6) & 1) + " ".join(["immediate"]*(word[1] & 1) + ["register"]*((word[1] >> 1) & 1))
+        sentence = " ".join(["immediate"]*(word[1] & 1) + ["register"]*((word[1] >> 1) & 1))
     elif(word[1] & (~0b111)):
         t = (word[1] >> 3) & 0b111
         sentence = ["no type", "label", "definition", "ORG directive", "DB directive", "instruction"][t]
@@ -385,26 +388,30 @@ def display_types_line(line: list, cleaned_input: bool = False):
 def display_word(word: list, optional_substitute: int = None):
     disp_word = str(word[0])
     if(optional_substitute != None):
+        # word=default
         disp_word = disp_word + '=' + str(optional_substitute)
     if(word[1] & 0b111):
-        if(word[1] & 0b1000):
-            disp_word = '+' + disp_word
-        if(word[1] & 0b010):
-            disp_word = '%' + disp_word
+        # [+%*word+]
         if(word[1] & 0o100):
             # * = any
             disp_word = '*' + disp_word
-        if(word[1] & 0b100):
-            if(word[1] & 0b010000):
-                disp_word = '[' + disp_word
-            if(word[1] & (~0x7F)):
-                # + after = special behavior
-                disp_word = disp_word + '+'
-            if(word[1] & 0b100000):
-                disp_word = disp_word + ']'
+        if(word[1] & 0b010):
+            disp_word = '%' + disp_word
+        if(word[1] & 0b1000):
+            # merge
+            disp_word = '+' + disp_word
+        if(word[1] & 0b010000):
+            disp_word = '[' + disp_word
+        if(word[1] & (~0x7F)):
+            # + after = special behavior
+            disp_word = disp_word + '+'
+        if(word[1] & 0b100000):
+            disp_word = disp_word + ']'
     elif((word[1] & 0x38) != 0):
+        # WORD
         return disp_word.upper()
     else:
+        # word+
         if(word[1] & (~0x7F)):
             # + after = special behavior
             disp_word = disp_word + '+'
@@ -760,6 +767,20 @@ def bake_constants(matt_mode):
                     maxim=len(operand)
                 else:
                     fatal_error('assembler', f"baking stage: wtf: Optional operand \'{operands[idx-1][0][5]}\' declared inbetween mandatory ones in instruction \'{opcode.upper()}\' variation {variation_index}! (Will cause problems later)")
+# returns ROM size then ROM offset then padding word
+def load_config(config_filename: str, verbose_level: int):
+    ROM_size = ROM_offset = padding_word = None
+    if(verbose_level >= 1):
+        print(f"load_config: Reading from \'{config_filename}\'")
+    try:
+        config_file = open(config_filename, 'r')
+    except FileNotFoundError as _ERR:
+        fatal_error('assembler', f"load_config: {config_filename}: File not found.\n{_ERR}")
+    lines = [line.strip() for line in config_file]
+    config_file.close()
+    print(lines)
+
+    return (ROM_size, ROM_offset, padding_word)
 
 ###- MAIN THING -###
 # Assemble function
