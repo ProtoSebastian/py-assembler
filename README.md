@@ -452,3 +452,9 @@ with squeezing would be reduced to
 ```
 
 The same information is conveyed but in a more compact manner, though extra code will be needed to interpret it. (Logisim-evolution as of v3.8.0 can't)
+
+# Honorable mention
+
+[@MattBatWings](https://github.com/mattbatwings) for inspiring this project! <3
+
+Their [YouTube Channel](https://youtube.com/@MattBatWings)
