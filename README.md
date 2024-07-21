@@ -6,6 +6,8 @@
 # Intro
 An assembler made in python, with the primary goal of being easy to adapt!
 
+[\<Honorable mention\>](#honorable-mention)
+
 # Usage
 Run main.py with python (in a <u>command-line/terminal!!!)</u> and pass the options <u>after</u> 'main.py'.
 
@@ -453,7 +455,7 @@ with squeezing would be reduced to
 
 The same information is conveyed but in a more compact manner, though extra code will be needed to interpret it. (Logisim-evolution as of v3.8.0 can't)
 
-# Honorable mention
+# <a id="honorable-mention">Honorable mention</a>
 
 [@MattBatWings](https://github.com/mattbatwings) for inspiring this project! <3
 
