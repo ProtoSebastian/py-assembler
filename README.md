@@ -26,6 +26,13 @@ Example:
 
 ### `-I --config-file <file>`
   Sets input config filename. (defaults to 'default.config')
+
+  Example:
+
+   `-I example.config`
+
+   will read config from 'example.config'
+
 ### `-O --output <file>`
 
   Sets output filename. (defaults to 'output.mc')
