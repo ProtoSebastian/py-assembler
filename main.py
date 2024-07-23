@@ -43,7 +43,7 @@ Options:
   -f --output-format <format>
                             Set the output format, possible formats are:
                             Matt, Raw, Image, Hexdump, Logisim3, Logisim2,-
-                            DEBUG. (default is Matt, case-insensitive)
+                            DEBUG. (default is config, case-insensitive)
   -M --matt-mode            Enables Matt mode, which disables DB & ORG-
                             directives, and multi-line pseudo-instructions, to-
                             remove jumps in address and make every line-
@@ -67,7 +67,7 @@ credits_mess = """Author:
 
 Honorable mention:
   @MattBatWings (for inspiring this project <3)
--  GitHub: https://github.com/MattBatWings
+-  GitHub: https://github.com/mattbatwings
 -  YouTube: https://youtube.com/@MattBatWings"""
 
 # License message
@@ -114,7 +114,7 @@ def main():
     ROM_offset  = None
     ROM_size    = None
     padding_word= None
-    format_style= 'matt'
+    format_style= None
     debug_flags = 0
     verbosity   = 0
     input_files = 0
@@ -270,15 +270,11 @@ def main():
     # Load config
     load_config_out = load_config(config_file, verbosity)
     # Only write if it hasn't been overriden by parameters
-    if(ROM_size == None):
-        ROM_size = load_config_out[0][0]
-        dbg_input_size = load_config_out[0][1]
-        dbg_input_specifier = load_config_out[0][2]
-    if(ROM_offset == None):
-        ROM_offset = load_config_out[1]
-    if(padding_word == None):
-        padding_word = load_config_out[2]
-    WORD_LENGTH = load_config_out[3]
+    if(ROM_size == None):     ROM_size, dbg_input_size, dbg_input_specifier = load_config_out[0]
+    if(ROM_offset == None):   ROM_offset = load_config_out[1]
+    if(padding_word == None): padding_word = load_config_out[2]
+    if(format_style == None): format_style = load_config_out[3]
+    WORD_LENGTH = load_config_out[4]
     print("s %X\no 0x%X\np 0x%X"%(ROM_size, ROM_offset, padding_word))
     # Assemble
     if(ROM_size == None):

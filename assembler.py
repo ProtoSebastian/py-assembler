@@ -802,7 +802,7 @@ def decompose_config_params(string: str, filename: str, line: int, caller: str):
     return output
 # returns ROM size then ROM offset then padding word
 def load_config(config_filename: str, verbose_level: int):
-    ROM_size = dbg_input_size = dbg_input_specifier = ROM_offset = padding_word = None
+    ROM_size = dbg_input_size = dbg_input_specifier = ROM_offset = padding_word = format_style = None
     if(verbose_level >= 1):
         print(f"load_config: Reading from \'{config_filename}\'")
     try:
@@ -858,18 +858,20 @@ def load_config(config_filename: str, verbose_level: int):
                     WORD_LENGTH = int(params[0], 0)
                 case 'instruction_max_length':
                     INSTRUCTION_MAX_LENGTH = int(params[0], 0)
-                case 'rom_size':
+                case 'def_rom_size':
                     ROM_size, dbg_input_size, dbg_input_specifier = calculate_size(params[0], 'load_config')
-                case 'rom_offset':
+                case 'def_rom_offset':
                     ROM_offset = int(params[0], 0)
-                case 'padding_word':
+                case 'def_padding_word':
                     padding_word = int(params[0], 0)
+                case 'def_format':
+                    format_style = params[0]
                 case other:
                     fatal_error('assembler', f"load_config: {config_filename}:{line_number}: [{fields[mode]}]: Unknown option \'{first_word[0]}\'")
         # TODO: the rest lol
 
         line_index += 1
-    return ([ROM_size, dbg_input_size, dbg_input_specifier], ROM_offset, padding_word, WORD_LENGTH)
+    return ([ROM_size, dbg_input_size, dbg_input_specifier], ROM_offset, padding_word, format_style, WORD_LENGTH)
 
 ###- MAIN THING -###
 # Assemble function

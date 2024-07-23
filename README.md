@@ -15,9 +15,10 @@ Run main.py with python (in a <u>command-line/terminal!!!)</u> and pass the opti
 
 Example:
 
-`python main.py -vv -s1KiB -fMatt -Ooutput.txt test.s`
+`python main.py -vv -s1KiB -o0 -fMatt -Ooutput.txt test.s`
 - Verbosity: 2
 - ROM size: 1 Kibi-[words](#word)
+- ROM offset: 0x000
 - Output format: Matt
 - Output: output.txt
 - Input file: test.s
@@ -90,7 +91,7 @@ Example:
 
 ### `-f --output-format <format>`
 
-  Set the output format, possible [formats](#formats) are: (default is Matt)
+  Set the output format, possible [formats](#formats) are: (default is config)
 
    [Matt](#format-matt), [Raw](#format-raw), [Image](#format-image), [Hexdump](#format-hexdump), [Logisim3](#format-logisim3), [Logisim2](#format-logisim2), [DEBUG](#format-debug). (case-insensitive)
 
