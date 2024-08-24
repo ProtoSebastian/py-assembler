@@ -1,7 +1,9 @@
 > [!IMPORTANT]
 > Changes are currently all temporary; everything is subject to change. (also it's unusable atm)
 >
-> For now, please only use https://github.com/ProtoSebastian/newcpu (but still check here for updates!)
+> For now, please only use https://github.com/ProtoSebastian/py-assembler-old (but still check here for updates!)
+> 
+> Note that certain python versions won't work because backslashes are being used in the f-string terms.
 
 # Intro
 An assembler made in python, with the primary goal of being easy to adapt!
@@ -103,7 +105,7 @@ Example:
 
 ### `-M --matt-mode`
 
-  Enables Matt mode, which disables DB & ORG directives, and multi-line pseudo-instructions, to remove jumps in address and make every line translate to exactly 1 machine code line.
+  Enables Matt mode, which disables DW & ORG directives, and multi-line pseudo-instructions, to remove jumps in address and make every line translate to exactly 1 machine code line.
 
 ### `--dump-instructions`
 
@@ -276,14 +278,14 @@ Examples:
 
 `define nl, '\n'`
 
-## DB directive
-`DB <OPERANDS>`
+## DW directive
+`DW <OPERANDS>`
 
 Like instructions, operands may be separated by commas or space characters.
 
-Specially for DB directives, the operand may be a multi-char string constant as well as everything an instruction operand can be. (types don't matter)
+Specially for DW directives, the operand may be a multi-char string constant as well as everything an instruction operand can be. (types don't matter)
 
-`DB "Hello, World!", 0x0A, 0x00`
+`DW "Hello, World!", 0x0A, 0x00`
 
 The backslash may be used to insert characters that would be normally detected as a string constant/character literal termination.
 
@@ -293,23 +295,23 @@ The backslash may be used to insert characters that would be normally detected a
 
 Indexing labels can be used to store addresses.
 
-`DB .Label2[1], .Label2[0]`
+`DW .Label2[1], .Label2[0]`
 
-'DB' is case-insensitive.
+'DW' is case-insensitive.
 
 Examples:
 
-`DB 'c'`
+`DW 'c'`
 
-`db 0x30, 49, 0b00110010, 0o0063`
+`dw 0x30, 49, 0b00110010, 0o0063`
 
-`DB .Label0[1], .Label0[0]`
+`DW .Label0[1], .Label0[0]`
 
-`DB "ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789"`
+`DW "ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789"`
 
-`DB "The quick brown fox jumps over the " "lazy dog." 0x0A 0`
+`DW "The quick brown fox jumps over the " "lazy dog." 0x0A 0`
 
-`db "H" "e" "l" 'l' "o" ' ' ":" "3"`
+`dw "H" "e" "l" 'l' "o" ' ' ":" "3"`
 
 ## ORG directive
 `ORG <OPERAND>`
@@ -377,11 +379,11 @@ Pseudo-instructions get resolved into native instructions (instructions the CPU 
 
 To see every instruction and pseudo-instruction with the types of their operands, use the `--dump-instructions` option.
 
-## <a id="specifics-db">DB directive</a>
-Standing for Define Byte, it actually defines each operand as a [word](#word), or a string of words if it's a string. (1 word for each character)
+## <a id="specifics-dw">DW directive</a>
+Standing for Define Word, it defines each operand as a [word](#word), or a string of words if it's a string. (1 word for each character)
 
 If a word is 2 bytes, the assembler will assemble like:
-`DB "Hello"`
+`DW "Hello"`
 ```
 +0: 00 48 |.H|
 +1: 00 65 |.e|
@@ -394,7 +396,7 @@ If a word is 2 bytes, the assembler will assemble like:
 It's assembled this way so iterating through the addresses will fetch 1 character at a time.
 
 If a word is 3 bytes, it'll be assembled like shown below, for the same reasons:
-`DB "Hello"`
+`DW "Hello"`
 ```
 +0: 00 00 48 |..H|
 +1: 00 00 65 |..e|
@@ -409,9 +411,9 @@ Sets current position to the operand. (Again, labels cannot be used, as ORGs eff
 
 If you need to set the position to 0x8000 to perhaps store some information you want to access later in the ROM, you'd do:
 `ORG $8000` or `ORG 0x8000`
-then use DB directives to store that information.
+then use DW directives to store that information.
 ```
-DB "Hello, World!", 0x0A, 0x00 ; some data
+DW "Hello, World!", 0x0A, 0x00 ; some data
 ```
 or if your machine starts at position 0x8000, you write your code after the ORG directive setting it to position 0x8000:
 ```
@@ -431,7 +433,7 @@ A word isn't always defined as 2 bytes in this case. depending on the current IS
 It's defined as how many bits your ROM stores at each address. so:
 
 The word should be set as the amount of bits your machine's ROM stores at any address. If it stores/reads 2 bytes for every address, a word should be defined as 16 bits, if 1 byte, a word should be defined as 8 bits.
-If it's set wrong, the instructions and DB data will be at the wrong addresses. Further, DB data might be assembled in an undesired way, like the case in [Specifics of directives \> DB directive](#specifics-db).
+If it's set wrong, the instructions and DW data will be at the wrong addresses. Further, DW data might be assembled in an undesired way, like the case in [Specifics of directives \> DW directive](#specifics-dw).
 
 <a id="squeezing">[Squeezing]</a>
 Squeezing means that the output's lines are replaced with an asterisk '\*' if the lines are repeating.
