@@ -2,8 +2,6 @@
 > Changes are currently all temporary; everything is subject to change. (also it's unusable atm)
 >
 > For now, please only use https://github.com/ProtoSebastian/py-assembler-old (but still check here for updates!)
-> 
-> Note that certain python versions won't work because backslashes are being used in the f-string terms.
 
 # Intro
 An assembler made in python, with the primary goal of being easy to adapt!
