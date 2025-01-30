@@ -1,3 +1,6 @@
+> [!NOTE]
+> This project is stale as of now, and chances of reignition are low due to academic and personal reasons.
+
 > [!IMPORTANT]
 > Changes are currently all temporary; everything is subject to change. (also it's unusable atm)
 >
